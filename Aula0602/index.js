@@ -1,5 +1,9 @@
 const meuModulo = require('./soma')
-const soma = meuModulo.soma
+const calculadora = meuModulo.calculadora
 
-soma(8, 9)
-soma(1254, 552)
+calculadora(26, 52, "+")
+calculadora(50,24, "-")
+calculadora(20, 2, "/")
+calculadora(30, 3, "*")
+calculadora(30, 3, "x")
+calculadora(20, 30, "o")
