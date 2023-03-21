@@ -33,6 +33,7 @@ function operation()
 
         if (action === 'Criar Conta' ){
             console.log('Criando a Conta...')
+            createAccount()
         }
         else if (action === 'Consultar Saldo'){
             console.log('Consultando seu saldo...')
@@ -51,4 +52,45 @@ function operation()
         }
     })
 }
+//#endregion
+
+//#region Criar conta
+    function createAccount(){
+        console.log(chalk.bgGreen.black('Bem Vindos ao Contas ETEC Bank!'))
+        console.log(chalk.green('Siga as orientações a seguir:'))
+
+        buildAccount();
+
+    }
+    function buildAccount(){
+        inquirer.prompt([
+            {
+                name: 'accountName',
+                message: 'Entre com o nome da conta'
+
+            }      
+        ]).then((answer) => {
+            const accountName = answer['accountName']
+
+            if(!fs.existsSync('accounts'))
+            {
+                fs.mkdirSync('accounts')
+            }
+            if(fs.existsSync(`accounts/${accountName}.json`))
+            {
+                console.log(chalk.bgRed.black('Esta conta ja existe'))
+                buildAccount(accountName)
+            }
+
+            fs.writeFileSync(
+                `accounts/${accountName}.json`,
+                '{"balance": 0}',
+                function(err){
+                    console.error(err)
+                }
+            )
+            console.info(chalk.green('Parabéns! Sua conta no ETEC Bank foi criada.'))
+            operation()
+        })
+    }
 //#endregion
