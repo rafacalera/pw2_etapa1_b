@@ -31,7 +31,7 @@ function operation()
     ]).then((answer) => {
         const action = answer['action']
 
-        if (action === 'Criar Conta' ){
+        if (action === 'Criar conta' ){
             console.log('Criando a Conta...')
             createAccount()
         }
@@ -55,11 +55,12 @@ function operation()
 //#endregion
 
 //#region Criar conta
+
     function createAccount(){
         console.log(chalk.bgGreen.black('Bem Vindos ao Contas ETEC Bank!'))
         console.log(chalk.green('Siga as orientações a seguir:'))
 
-        buildAccount();
+        buildAccount()
 
     }
     function buildAccount(){
@@ -80,6 +81,7 @@ function operation()
             {
                 console.log(chalk.bgRed.black('Esta conta ja existe'))
                 buildAccount(accountName)
+                return
             }
 
             fs.writeFileSync(
@@ -93,4 +95,52 @@ function operation()
             operation()
         })
     }
+//#endregion
+
+//#region Depositar na Conta
+function deposit() {
+    inquirer.prompt([
+    {
+            name: 'accountName',
+            message: 'Para qual conta irá o depósito?'
+    }
+    ]).then((answer) => {
+        const accountName = answer['accountName']
+        if(!checkAccount(accountName)){
+            return deposit()
+        }
+
+        inquirer.prompt([
+            {
+                name: 'amount',
+                message: 'Quanto você deseja depositar?'
+            }
+        ]).then((answer) => {
+            const amount = answer['amount']
+            addAmount(accountName, amount)
+            console.log(chalk.bgYellow.green('Sucesso! Seu montante foi depositado!'))
+            setTimeout(() => {
+                operation()
+            }, 1000);
+            
+        })
+    })
+}
+function checkAccount(accountName){
+    if(!fs.existsSync(`account/${accountName}.json`)){
+        console.log(chalk.bgRed.black('Esta conta não existe!'))
+        return false
+    } 
+    return true
+}
+function getAccount(accountName){
+    const accountJSON = fs.readFileSync(`accounts/${accountName}.json`,{
+        encoding:'utf8',
+        flag: 'r'
+    })
+    return JSON.parse(accountJSON)
+}
+function addAmount(accountName, amount){
+
+}
 //#endregion
