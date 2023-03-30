@@ -44,6 +44,7 @@ function operation()
         }
         else if (action === 'Sacar'){
             console.log('Sacando de sua conta')
+            withDraw()
         }
         else if (action === 'Sair'){
             console.log(chalk.bgBlue.yellow.bold('SAINDO DA APLICAÇÃO CONTAS ETEC'))
@@ -87,7 +88,7 @@ function operation()
 
             fs.writeFileSync(
                 `accounts/${accountName}.json`,
-                '{"balance": 0}',
+                '{"balance": 0, "limite":1000}',
                 function(err){
                     console.error(err)
                 }
@@ -188,4 +189,66 @@ function accountBalance(){
         }, 10000);
     })
 }
+//#endregion
+
+//#region Sacar Saldo
+function withDraw(){
+    inquirer.prompt([
+        {
+            name: 'accountName',
+            message: 'De qual conta deseja sacar?'
+        }
+    ]).then((answer) => {
+        const accountName = answer['accountName']
+
+        if(!checkAccount(accountName)){
+            return withDraw()
+        }
+        inquirer.prompt([
+            {
+                name: 'amount',
+                message: 'Quanto deseja sacar?'
+            }
+        ]).then((answer) => {
+            const amount = answer['amount']
+            
+            if(removeAmount(accountName, amount)){
+                // console.log(chalk.bgRed.black(`Foi sacado: ${amount} da conta: ${accountName}`))
+                setTimeout(() => {
+                    operation()
+                }, 3000);
+            }                       
+        })
+    })
+}
+function removeAmount(accountName, amount){
+    const accountData = getAccount(accountName)
+
+    if(!amount){
+        console.log(chalk.bgRed.black('Não há valor á sacar!'))
+        return withDraw()
+    }
+    if(accountData.balance < amount){
+        console.log(chalk.bgRed.black('Você irá entrar no cheque especial!'))
+    }
+    if((accountData.balance + accountData.limite) < amount){
+        console.log(chalk.bgRed.black(`Você não tem limite para fazer essa operação`))
+        return
+    }
+    else{
+        accountData.balance = parseFloat(accountData.balance) - parseFloat(amount)
+
+    fs.writeFileSync(
+        `accounts/${accountName}.json`,
+        JSON.stringify(accountData),
+        function(err) {
+            console.log(err)
+        }
+    )
+    console.log(chalk.blue(`Você sacou: ${amount} da conta ${accountName}.`))
+    console.log(chalk.bgWhite.blue(`Seu saldo ficou: ${accountData.balance}`))
+    }
+    
+    
+}        
 //#endregion
